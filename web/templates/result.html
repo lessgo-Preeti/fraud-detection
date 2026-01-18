@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result - Credit Card Fraud Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">🛡️ Fraud Detection System</h1>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/predict">Predict</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 2rem; margin-bottom: 2rem;">
+        <h1>Prediction Result</h1>
+        
+        <div class="result-container">
+            {% if result.is_fraud %}
+            <div class="alert alert-danger">
+                <h2>⚠️ FRAUD DETECTED</h2>
+                <p>This transaction has been flagged as potentially fraudulent!</p>
+            </div>
+            {% else %}
+            <div class="alert alert-success">
+                <h2>✅ LEGITIMATE TRANSACTION</h2>
+                <p>This transaction appears to be legitimate.</p>
+            </div>
+            {% endif %}
+
+            <div class="result-details">
+                <h3>Prediction Details</h3>
+                
+                <div class="result-grid">
+                    <div class="result-item">
+                        <span class="result-label">Fraud Probability:</span>
+                        <span class="result-value">{{ "%.2f"|format(result.fraud_probability * 100) }}%</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Confidence:</span>
+                        <span class="result-value">{{ "%.2f"|format(result.confidence * 100) }}%</span>
+                    </div>
+                    
+                    <div class="result-item">
+                        <span class="result-label">Risk Level:</span>
+                        <span class="result-value risk-{{ result.risk_level.lower() }}">{{ result.risk_level }}</span>
+                    </div>
+                </div>
+
+                <div class="probability-bar">
+                    <div class="probability-fill" style="width: {{ result.fraud_probability * 100 }}%">
+                    </div>
+                </div>
+                <div class="probability-labels">
+                    <span>Legitimate</span>
+                    <span>Fraudulent</span>
+                </div>
+            </div>
+
+            <div class="transaction-info">
+                <h3>Transaction Information</h3>
+                <table>
+                    <tr>
+                        <td><strong>Amount:</strong></td>
+                        <td>${{ "%.2f"|format(transaction.Amount) }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Time:</strong></td>
+                        <td>{{ transaction.Time }} seconds</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/predict" class="btn btn-primary">Analyze Another Transaction</a>
+                <a href="/dashboard" class="btn btn-secondary">View Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Credit Card Fraud Detection System | Deep Learning Project</p>
+        </div>
+    </footer>
+</body>
+</html>

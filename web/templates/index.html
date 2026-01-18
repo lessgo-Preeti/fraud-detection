@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Credit Card Fraud Detection System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <h1 class="logo">🛡️ Fraud Detection System</h1>
+            <ul class="nav-links">
+                <li><a href="/" class="active">Home</a></li>
+                <li><a href="/predict">Predict</a></li>
+                <li><a href="/dashboard">Dashboard</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="container">
+            <h1>Credit Card Fraud Detection System</h1>
+            <p class="subtitle">Advanced Deep Learning Model for Real-Time Fraud Detection</p>
+            
+            <div class="features">
+                <div class="feature-card">
+                    <h3>🧠 Deep Learning</h3>
+                    <p>Multilayer Perceptron with L2 Regularization and Dropout</p>
+                </div>
+                <div class="feature-card">
+                    <h3>💾 Database Integration</h3>
+                    <p>PostgreSQL/SQLite for transaction storage and logging</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🌐 Web Dashboard</h3>
+                    <p>Interactive interface for real-time predictions</p>
+                </div>
+                <div class="feature-card">
+                    <h3>☁️ Cloud Ready</h3>
+                    <p>Deployable on AWS, Heroku, or Azure</p>
+                </div>
+            </div>
+
+            <div class="cta-buttons">
+                <a href="/predict" class="btn btn-primary">Make Prediction</a>
+                <a href="/dashboard" class="btn btn-secondary">View Dashboard</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <div class="container">
+            <h2>About This System</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h4>Model Architecture</h4>
+                    <ul>
+                        <li>Input Layer: 30 features</li>
+                        <li>Hidden Layer 1: 64 neurons (ReLU + Dropout 0.3)</li>
+                        <li>Hidden Layer 2: 32 neurons (ReLU + Dropout 0.3)</li>
+                        <li>Output Layer: Sigmoid activation</li>
+                        <li>Optimizer: Adam</li>
+                        <li>Loss: Binary Crossentropy</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Features</h4>
+                    <ul>
+                        <li>Real-time fraud prediction</li>
+                        <li>Transaction history tracking</li>
+                        <li>Risk level classification</li>
+                        <li>Performance metrics dashboard</li>
+                        <li>REST API for integration</li>
+                        <li>Prediction logging</li>
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h4>Technologies</h4>
+                    <ul>
+                        <li>TensorFlow/Keras</li>
+                        <li>Flask Web Framework</li>
+                        <li>PostgreSQL/SQLite</li>
+                        <li>Scikit-learn</li>
+                        <li>Pandas & NumPy</li>
+                        <li>RESTful API</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Credit Card Fraud Detection System | Deep Learning Project</p>
+        </div>
+    </footer>
+</body>
+</html>
