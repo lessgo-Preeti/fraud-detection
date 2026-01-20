@@ -13,6 +13,7 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import Config
 from src.predict import FraudPredictor
+from src.demo_predictor import DemoFraudPredictor
 from database.db_operations import DatabaseOperations
 from database.db_setup import create_database
 
@@ -25,15 +26,20 @@ CORS(app)
 predictor = None
 
 def get_predictor():
-    """Get or initialize predictor"""
+    """Get or initialize predictor - guaranteed to return a working predictor"""
     global predictor
     if predictor is None:
-        predictor = FraudPredictor()
         try:
+            predictor = FraudPredictor()
             predictor.load_model_and_scaler()
         except Exception as e:
-            print(f"Warning: Could not load model: {e}")
-            print("Continuing in demo mode...")
+            print(f"⚠️  Error initializing predictor: {e}")
+            print("🔄 Creating new predictor in demo mode...")
+            # Force demo mode if any error occurs
+            predictor = FraudPredictor()
+            predictor.demo_predictor = DemoFraudPredictor()
+            predictor.is_demo_mode = True
+            print("✓ Demo mode predictor ready")
     return predictor
 
 

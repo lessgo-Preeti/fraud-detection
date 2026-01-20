@@ -30,19 +30,23 @@ class FraudPredictor:
         """Load the trained model and scaler, or fallback to demo mode"""
         print("Loading model and scaler...")
         
+        # Always check file existence first
+        model_path = self.config.MODEL_PATH
+        scaler_path = self.config.SCALER_PATH
+        
+        # Use demo mode if model file doesn't exist
+        if not os.path.exists(model_path) or not os.path.exists(scaler_path):
+            print(f"⚠️  Model files not found")
+            print(f"   Model path: {model_path} (exists: {os.path.exists(model_path)})")
+            print(f"   Scaler path: {scaler_path} (exists: {os.path.exists(scaler_path)})")
+            print("🔄 Switching to DEMO MODE with rule-based predictor...")
+            self.demo_predictor = DemoFraudPredictor()
+            self.is_demo_mode = True
+            print("✓ Demo mode activated successfully!")
+            return
+        
+        # Try to load model if files exist
         try:
-            # Check if model file exists
-            model_path = self.config.MODEL_PATH
-            scaler_path = self.config.SCALER_PATH
-            
-            if not os.path.exists(model_path):
-                print(f"⚠️  Model file not found at {model_path}")
-                print("🔄 Switching to DEMO MODE with rule-based predictor...")
-                self.demo_predictor = DemoFraudPredictor()
-                self.is_demo_mode = True
-                print("✓ Demo mode activated successfully!")
-                return
-            
             # Load model
             fraud_model = FraudDetectionModel()
             self.model = fraud_model.load_model()
@@ -53,7 +57,7 @@ class FraudPredictor:
             
             print("✓ Model and scaler loaded successfully!")
             
-        except Exception as e:
+        except (FileNotFoundError, OSError, IOError, Exception) as e:
             print(f"⚠️  Error loading model: {str(e)}")
             print("🔄 Switching to DEMO MODE with rule-based predictor...")
             self.demo_predictor = DemoFraudPredictor()
