@@ -53,37 +53,43 @@ class DemoFraudPredictor:
         # 1. Check amount (higher amounts have higher fraud risk)
         amount = transaction_data.get('Amount', 0)
         if amount > self.high_amount_threshold:
-            fraud_score += 0.15
+            fraud_score += 0.25  # Increased from 0.15
         elif amount > 500:
-            fraud_score += 0.08
+            fraud_score += 0.15  # Increased from 0.08
+        elif amount > 200:
+            fraud_score += 0.08  # New tier
         elif amount < 1:
-            fraud_score += 0.05  # Very small transactions can be tests
+            fraud_score += 0.10  # Increased - very small can be tests
         
-        # 2. Check PCA components for anomalies
+        # 2. Check PCA components for anomalies (these are KEY fraud indicators)
         suspicious_count = 0
         
         # High values in certain components indicate fraud
         for i in [1, 3, 4, 10, 12, 14]:
             v_key = f'V{i}'
             v_value = transaction_data.get(v_key, 0)
-            if abs(v_value) > 3.0:
+            if abs(v_value) > 2.5:  # Lowered threshold from 3.0
                 suspicious_count += 1
-                fraud_score += 0.08
+                fraud_score += 0.12  # Increased from 0.08
         
         # 3. Check for extreme outliers in any V component
         extreme_outliers = 0
         for i in range(1, 29):
             v_key = f'V{i}'
             v_value = transaction_data.get(v_key, 0)
-            if abs(v_value) > 4.0:
+            if abs(v_value) > 3.5:  # Lowered from 4.0
                 extreme_outliers += 1
-                fraud_score += 0.12
+                fraud_score += 0.15  # Increased from 0.12
         
-        # 4. Multiple anomalies together increase risk
+        # 4. Multiple anomalies together increase risk significantly
         if suspicious_count >= 3:
-            fraud_score += 0.15
+            fraud_score += 0.20  # Increased from 0.15
+        if suspicious_count >= 2:
+            fraud_score += 0.10  # New tier
         if extreme_outliers >= 2:
-            fraud_score += 0.20
+            fraud_score += 0.25  # Increased from 0.20
+        if extreme_outliers >= 1:
+            fraud_score += 0.08  # New tier
         
         # 5. Time-based patterns (unusual times can be suspicious)
         time_val = transaction_data.get('Time', 0)
@@ -91,14 +97,16 @@ class DemoFraudPredictor:
         hour = (time_val / 3600) % 24
         # Late night/early morning transactions (12 AM - 6 AM)
         if 0 <= hour < 6:
-            fraud_score += 0.05
+            fraud_score += 0.08  # Increased from 0.05
         
-        # 6. Combination of high amount + anomalies
+        # 6. Combination of high amount + anomalies (STRONG indicator)
         if amount > 500 and suspicious_count >= 2:
-            fraud_score += 0.15
+            fraud_score += 0.20  # Increased from 0.15
+        if amount > 300 and suspicious_count >= 1:
+            fraud_score += 0.10  # New combination
         
-        # 7. Add some randomness for variety (±5%)
-        noise = np.random.uniform(-0.05, 0.05)
+        # 7. Add controlled randomness for variety (±8%)
+        noise = np.random.uniform(-0.08, 0.08)  # Increased from ±5%
         fraud_score = max(0.0, min(1.0, fraud_score + noise))
         
         # Calculate final probability with sigmoid-like scaling
