@@ -53,8 +53,8 @@ class FraudPredictor:
         
         # Convert to numpy array if dict
         if isinstance(transaction_data, dict):
-            # Ensure correct order of features (same as training: Time, V1-V28, Amount)
-            feature_cols = ['Time'] + [f'V{i}' for i in range(1, 29)] + ['Amount']
+            # Ensure correct order of features
+            feature_cols = [f'V{i}' for i in range(1, 29)] + ['Amount', 'Time']
             transaction_array = np.array([transaction_data.get(col, 0) for col in feature_cols])
         else:
             transaction_array = np.array(transaction_data)

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Credit Card Fraud Detection System
 
 ## Project Overview
@@ -83,3 +84,6 @@ python web/app.py
 
 ## Author
 Deep Learning Project - Undergraduate Course
+=======
+# Fraud-Detection-System
+>>>>>>> becc8a1655c60cdc71f4f40a8eb8966ce80944de
