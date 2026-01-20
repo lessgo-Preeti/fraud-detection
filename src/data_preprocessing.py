@@ -195,8 +195,19 @@ class DataPreprocessor:
         return X_train_scaled, X_test_scaled, y_train, y_test
     
     def load_scaler(self):
-        """Load the saved scaler"""
-        return joblib.load(self.config.SCALER_SAVE_PATH)
+        """
+        Load the saved scaler
+        
+        Returns:
+            Scaler if successful
+            
+        Raises:
+            FileNotFoundError: If scaler file not found
+        """
+        scaler_path = self.config.SCALER_SAVE_PATH
+        if not os.path.exists(scaler_path):
+            raise FileNotFoundError(f"Scaler file not found at {scaler_path}")
+        return joblib.load(scaler_path)
 
 
 if __name__ == "__main__":

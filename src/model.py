@@ -181,9 +181,16 @@ class FraudDetectionModel:
         
         Args:
             model_path (str): Path to saved model
+            
+        Returns:
+            Model if successful, None if file not found
         """
         if model_path is None:
             model_path = self.config.MODEL_SAVE_PATH
+        
+        # Check if file exists before trying to load
+        if not os.path.exists(model_path):
+            raise FileNotFoundError(f"Model file not found at {model_path}")
         
         print(f"Loading model from {model_path}...")
         self.model = tf.keras.models.load_model(model_path)
