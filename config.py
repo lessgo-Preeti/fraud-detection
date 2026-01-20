@@ -58,4 +58,8 @@ class Config:
     # Model saving
     MODEL_SAVE_PATH = os.path.join(MODEL_DIR, 'fraud_detection_model.h5')
     SCALER_SAVE_PATH = os.path.join(MODEL_DIR, 'scaler.pkl')
+    
+    # Model loading (for predictions)
+    MODEL_PATH = MODEL_SAVE_PATH
+    SCALER_PATH = SCALER_SAVE_PATH
     HISTORY_SAVE_PATH = os.path.join(MODEL_DIR, 'training_history.pkl')
