@@ -120,11 +120,18 @@ def create_database():
     print(f"Database type: {config.DB_TYPE}")
     print(f"Database URI: {config.DATABASE_URI}")
     
-    engine = create_engine(config.DATABASE_URI, echo=True)
+    # For SQLite, ensure directory exists
+    if config.DB_TYPE == 'sqlite':
+        db_dir = os.path.dirname(config.SQLITE_DB_PATH)
+        if db_dir and not os.path.exists(db_dir):
+            os.makedirs(db_dir, exist_ok=True)
+            print(f"Created directory: {db_dir}")
     
-    # Create all tables
+    engine = create_engine(config.DATABASE_URI, echo=False)  # Turn off echo for cleaner logs
+    
+    # Create all tables - this is idempotent (safe to call multiple times)
     print("\nCreating tables...")
-    Base.metadata.create_all(engine)
+    Base.metadata.create_all(engine, checkfirst=True)
     
     print("\n" + "="*70)
     print("DATABASE SETUP COMPLETED!")
@@ -133,6 +140,12 @@ def create_database():
     print("1. transactions - Store credit card transactions")
     print("2. prediction_logs - Log all predictions")
     print("3. users - User authentication (future)")
+    
+    # Verify tables were created
+    from sqlalchemy import inspect
+    inspector = inspect(engine)
+    table_names = inspector.get_table_names()
+    print(f"\nVerified tables in database: {table_names}")
     
     return engine
 

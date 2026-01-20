@@ -8,7 +8,25 @@ import sys
 import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from database.db_setup import Transaction, PredictionLog, User, get_session
+from database.db_setup import Transaction, PredictionLog, User, get_session, create_database, Base
+from sqlalchemy import create_engine
+from config import Config
+
+# Ensure tables exist when module is loaded
+_tables_ensured = False
+
+def ensure_tables_exist():
+    """Make absolutely sure tables exist before any operation"""
+    global _tables_ensured
+    if not _tables_ensured:
+        try:
+            config = Config()
+            engine = create_engine(config.DATABASE_URI)
+            Base.metadata.create_all(engine, checkfirst=True)
+            _tables_ensured = True
+            print("✓ Database tables verified/created")
+        except Exception as e:
+            print(f"WARNING: Could not ensure tables exist: {e}")
 
 
 class DatabaseOperations:
@@ -17,6 +35,7 @@ class DatabaseOperations:
     """
     
     def __init__(self):
+        ensure_tables_exist()  # Make sure tables exist before ANY operation
         self.session = get_session()
     
     def add_transaction(self, transaction_data):
