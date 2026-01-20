@@ -29,7 +29,11 @@ def get_predictor():
     global predictor
     if predictor is None:
         predictor = FraudPredictor()
-        predictor.load_model_and_scaler()
+        try:
+            predictor.load_model_and_scaler()
+        except Exception as e:
+            print(f"Warning: Could not load model: {e}")
+            print("Continuing in demo mode...")
     return predictor
 
 
@@ -175,7 +179,13 @@ def api_transactions():
 @app.route('/health')
 def health():
     """Health check endpoint"""
-    return jsonify({'status': 'healthy', 'service': 'fraud-detection'})
+    pred = get_predictor()
+    status_info = {
+        'status': 'healthy', 
+        'service': 'fraud-detection',
+        'demo_mode': pred.is_demo_mode if pred else False
+    }
+    return jsonify(status_info)
 
 
 if __name__ == '__main__':

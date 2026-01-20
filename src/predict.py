@@ -11,6 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import Config
 from src.model import FraudDetectionModel
 from src.data_preprocessing import DataPreprocessor
+from src.demo_predictor import DemoFraudPredictor
 
 
 class FraudPredictor:
@@ -22,20 +23,42 @@ class FraudPredictor:
         self.config = Config()
         self.model = None
         self.scaler = None
+        self.demo_predictor = None
+        self.is_demo_mode = False
         
     def load_model_and_scaler(self):
-        """Load the trained model and scaler"""
+        """Load the trained model and scaler, or fallback to demo mode"""
         print("Loading model and scaler...")
         
-        # Load model
-        fraud_model = FraudDetectionModel()
-        self.model = fraud_model.load_model()
-        
-        # Load scaler
-        preprocessor = DataPreprocessor()
-        self.scaler = preprocessor.load_scaler()
-        
-        print("Model and scaler loaded successfully!")
+        try:
+            # Check if model file exists
+            model_path = self.config.MODEL_PATH
+            scaler_path = self.config.SCALER_PATH
+            
+            if not os.path.exists(model_path):
+                print(f"⚠️  Model file not found at {model_path}")
+                print("🔄 Switching to DEMO MODE with rule-based predictor...")
+                self.demo_predictor = DemoFraudPredictor()
+                self.is_demo_mode = True
+                print("✓ Demo mode activated successfully!")
+                return
+            
+            # Load model
+            fraud_model = FraudDetectionModel()
+            self.model = fraud_model.load_model()
+            
+            # Load scaler
+            preprocessor = DataPreprocessor()
+            self.scaler = preprocessor.load_scaler()
+            
+            print("✓ Model and scaler loaded successfully!")
+            
+        except Exception as e:
+            print(f"⚠️  Error loading model: {str(e)}")
+            print("🔄 Switching to DEMO MODE with rule-based predictor...")
+            self.demo_predictor = DemoFraudPredictor()
+            self.is_demo_mode = True
+            print("✓ Demo mode activated successfully!")
     
     def predict_single(self, transaction_data, threshold=0.5):
         """
@@ -48,8 +71,12 @@ class FraudPredictor:
         Returns:
             dict: Prediction results
         """
-        if self.model is None or self.scaler is None:
+        if self.model is None and self.scaler is None and self.demo_predictor is None:
             self.load_model_and_scaler()
+        
+        # Use demo predictor if in demo mode
+        if self.is_demo_mode:
+            return self.demo_predictor.predict_single(transaction_data, threshold)
         
         # Convert to numpy array if dict
         if isinstance(transaction_data, dict):
@@ -73,7 +100,8 @@ class FraudPredictor:
             'is_fraud': bool(prediction),
             'fraud_probability': float(probability),
             'confidence': float(max(probability, 1 - probability)),
-            'risk_level': self._get_risk_level(probability)
+            'risk_level': self._get_risk_level(probability),
+            'demo_mode': False
         }
         
         return result
@@ -89,8 +117,12 @@ class FraudPredictor:
         Returns:
             pd.DataFrame: DataFrame with predictions
         """
-        if self.model is None or self.scaler is None:
+        if self.model is None and self.scaler is None and self.demo_predictor is None:
             self.load_model_and_scaler()
+        
+        # Use demo predictor if in demo mode
+        if self.is_demo_mode:
+            return self.demo_predictor.predict_batch(transactions_df, threshold)
         
         # Scale features
         transactions_scaled = self.scaler.transform(transactions_df)

@@ -21,6 +21,13 @@
     <div class="container" style="margin-top: 2rem; margin-bottom: 2rem;">
         <h1>Prediction Result</h1>
         
+        {% if result.demo_mode %}
+        <div class="alert alert-info" style="background-color: #e7f3ff; border-left: 4px solid #2196F3; padding: 1rem; margin-bottom: 1rem;">
+            <h3 style="margin: 0 0 0.5rem 0; color: #1976D2;">ℹ️ Demo Mode</h3>
+            <p style="margin: 0;">Running with rule-based predictor. For full ML predictions, train and deploy the model.</p>
+        </div>
+        {% endif %}
+        
         <div class="result-container">
             {% if result.is_fraud %}
             <div class="alert alert-danger">
