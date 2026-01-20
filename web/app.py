@@ -12,8 +12,10 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import Config
-from src.predict import FraudPredictor
+
+# Import demo predictor first (no TensorFlow dependency)
 from src.demo_predictor import DemoFraudPredictor
+
 from database.db_operations import DatabaseOperations
 from database.db_setup import create_database
 
@@ -29,17 +31,55 @@ def get_predictor():
     """Get or initialize predictor - guaranteed to return a working predictor"""
     global predictor
     if predictor is None:
-        try:
-            predictor = FraudPredictor()
-            predictor.load_model_and_scaler()
-        except Exception as e:
-            print(f"⚠️  Error initializing predictor: {e}")
-            print("🔄 Creating new predictor in demo mode...")
-            # Force demo mode if any error occurs
-            predictor = FraudPredictor()
-            predictor.demo_predictor = DemoFraudPredictor()
-            predictor.is_demo_mode = True
+        # Check if model files exist first
+        config = Config()
+        model_exists = os.path.exists(config.MODEL_PATH)
+        scaler_exists = os.path.exists(config.SCALER_PATH)
+        
+        # Use demo mode if files don't exist
+        if not model_exists or not scaler_exists:
+            print("🔄 Using DEMO MODE (model files not available)")
+            # Create a simple wrapper for demo predictor
+            class DemoWrapper:
+                def __init__(self):
+                    self.demo_predictor = DemoFraudPredictor()
+                    self.is_demo_mode = True
+                    self.model = None
+                    self.scaler = None
+                
+                def predict_single(self, transaction_data, threshold=0.5):
+                    return self.demo_predictor.predict_single(transaction_data, threshold)
+                
+                def predict_batch(self, transactions_df, threshold=0.5):
+                    return self.demo_predictor.predict_batch(transactions_df, threshold)
+            
+            predictor = DemoWrapper()
             print("✓ Demo mode predictor ready")
+        else:
+            # Try to import and use full model (lazy import)
+            try:
+                print("Loading full model...")
+                from src.predict import FraudPredictor
+                predictor = FraudPredictor()
+                predictor.load_model_and_scaler()
+            except Exception as e:
+                print(f"⚠️  Error loading full model: {e}")
+                print("🔄 Falling back to demo mode...")
+                class DemoWrapper:
+                    def __init__(self):
+                        self.demo_predictor = DemoFraudPredictor()
+                        self.is_demo_mode = True
+                        self.model = None
+                        self.scaler = None
+                    
+                    def predict_single(self, transaction_data, threshold=0.5):
+                        return self.demo_predictor.predict_single(transaction_data, threshold)
+                    
+                    def predict_batch(self, transactions_df, threshold=0.5):
+                        return self.demo_predictor.predict_batch(transactions_df, threshold)
+                
+                predictor = DemoWrapper()
+                print("✓ Demo mode predictor ready")
     return predictor
 
 
