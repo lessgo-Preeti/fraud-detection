@@ -9,7 +9,8 @@ import os
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import Config
-from src.model import FraudDetectionModel
+# Lazy import - only import when actually loading model
+# from src.model import FraudDetectionModel
 from src.data_preprocessing import DataPreprocessor
 from src.demo_predictor import DemoFraudPredictor
 
@@ -48,6 +49,7 @@ class FraudPredictor:
         # Try to load model if files exist
         try:
             # Load model
+            from src.model import FraudDetectionModel
             fraud_model = FraudDetectionModel()
             self.model = fraud_model.load_model()
             

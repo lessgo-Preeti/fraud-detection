@@ -27,6 +27,14 @@ CORS(app)
 # Initialize predictor (lazy loading)
 predictor = None
 
+# Create database tables on startup (important for Render/production)
+try:
+    print("Initializing database...")
+    create_database()
+    print("✓ Database ready")
+except Exception as e:
+    print(f"Database initialization: {e}")
+
 def get_predictor():
     """Get or initialize predictor - guaranteed to return a working predictor"""
     global predictor
