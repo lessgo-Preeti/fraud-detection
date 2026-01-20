@@ -17,7 +17,7 @@ from config import Config
 from src.demo_predictor import DemoFraudPredictor
 
 from database.db_operations import DatabaseOperations
-from database.db_setup import create_database
+from database.db_setup import create_database, Base
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -27,13 +27,27 @@ CORS(app)
 # Initialize predictor (lazy loading)
 predictor = None
 
-# Create database tables on startup (important for Render/production)
+# CRITICAL: Create database tables on startup
+print("\n" + "="*70)
+print("INITIALIZING APPLICATION")
+print("="*70)
 try:
-    print("Initializing database...")
     create_database()
-    print("✓ Database ready")
 except Exception as e:
-    print(f"Database initialization: {e}")
+    print(f"WARNING: Database setup issue: {e}")
+    print("Attempting to continue anyway...")
+    # Try to create tables without failing
+    try:
+        from sqlalchemy import create_engine
+        from database.db_setup import Base
+        config = Config()
+        engine = create_engine(config.DATABASE_URI)
+        Base.metadata.create_all(engine)
+        print("✓ Database tables created successfully")
+    except Exception as e2:
+        print(f"ERROR: Could not create database tables: {e2}")
+        print("NOTE: Database operations may fail!")
+print("="*70 + "\n")
 
 def get_predictor():
     """Get or initialize predictor - guaranteed to return a working predictor"""
